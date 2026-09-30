@@ -21,7 +21,7 @@ const findAllStudents = async (payload) => {
         WHERE t1.role_id = 3`;
     let queryParams = [];
     if (name) {
-        query += ` AND t1.name = $${queryParams.length + 1}`;
+        query += ` AND t1.name ILIKE '%' || $${queryParams.length + 1} || '%'`;
         queryParams.push(name);
     }
     if (className) {
@@ -111,8 +111,32 @@ const findStudentToUpdate = async (paylaod) => {
     return rows;
 }
 
+const findUserIdByEmail = async (email) => {
+    const query = "SELECT id FROM users WHERE LOWER(email) = LOWER($1)";
+    const queryParams = [email];
+    const { rows } = await processDBRequest({ query, queryParams });
+    return rows[0];
+}
+
+const doesClassExist = async (className) => {
+    const query = "SELECT 1 FROM classes WHERE name = $1";
+    const queryParams = [className];
+    const { rowCount } = await processDBRequest({ query, queryParams });
+    return rowCount > 0;
+}
+
+const doesSectionExist = async (sectionName) => {
+    const query = "SELECT 1 FROM sections WHERE name = $1";
+    const queryParams = [sectionName];
+    const { rowCount } = await processDBRequest({ query, queryParams });
+    return rowCount > 0;
+}
+
 module.exports = {
     getRoleId,
+    findUserIdByEmail,
+    doesClassExist,
+    doesSectionExist,
     findAllStudents,
     addOrUpdateStudent,
     findStudentDetail,

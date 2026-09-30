@@ -1,11 +1,21 @@
 const express = require("express");
 const router = express.Router();
 const studentController = require("./students-controller");
+const { checkApiAccess } = require("../../middlewares");
+const { validateRequest } = require("../../utils");
+const {
+    GetStudentsSchema,
+    StudentIdSchema,
+    AddStudentSchema,
+    UpdateStudentSchema,
+    StudentStatusSchema
+} = require("./students-schema");
 
-router.get("", studentController.handleGetAllStudents);
-router.post("", studentController.handleAddStudent);
-router.get("/:id", studentController.handleGetStudentDetail);
-router.post("/:id/status", studentController.handleStudentStatus);
-router.put("/:id", studentController.handleUpdateStudent);
+router.get("", checkApiAccess, validateRequest(GetStudentsSchema), studentController.handleGetAllStudents);
+router.post("", checkApiAccess, validateRequest(AddStudentSchema), studentController.handleAddStudent);
+router.get("/:id", checkApiAccess, validateRequest(StudentIdSchema), studentController.handleGetStudentDetail);
+router.post("/:id/status", checkApiAccess, validateRequest(StudentStatusSchema), studentController.handleStudentStatus);
+router.put("/:id", checkApiAccess, validateRequest(UpdateStudentSchema), studentController.handleUpdateStudent);
+router.delete("/:id", checkApiAccess, validateRequest(StudentIdSchema), studentController.handleDeleteStudent);
 
 module.exports = { studentsRoutes: router };
